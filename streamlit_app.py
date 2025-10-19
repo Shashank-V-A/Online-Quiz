@@ -125,13 +125,87 @@ def get_sample_questions():
             'option3': 'MySQL',
             'option4': 'All of the above',
             'correct_option': 4
+        },
+        {
+            'question': 'What is the main purpose of CSS?',
+            'option1': 'Adding interactivity to web pages',
+            'option2': 'Styling and formatting web pages',
+            'option3': 'Managing databases',
+            'option4': 'Creating server-side logic',
+            'correct_option': 2
+        },
+        {
+            'question': 'Which of the following is NOT a programming language?',
+            'option1': 'Python',
+            'option2': 'JavaScript',
+            'option3': 'HTML',
+            'option4': 'Java',
+            'correct_option': 3
+        },
+        {
+            'question': 'What does API stand for?',
+            'option1': 'Application Programming Interface',
+            'option2': 'Advanced Programming Interface',
+            'option3': 'Automated Programming Interface',
+            'option4': 'Application Protocol Interface',
+            'correct_option': 1
+        },
+        {
+            'question': 'Which of the following is a version control system?',
+            'option1': 'Git',
+            'option2': 'Docker',
+            'option3': 'Kubernetes',
+            'option4': 'Jenkins',
+            'correct_option': 1
+        },
+        {
+            'question': 'What is the purpose of a firewall?',
+            'option1': 'To speed up internet connection',
+            'option2': 'To protect networks from unauthorized access',
+            'option3': 'To store data',
+            'option4': 'To create websites',
+            'correct_option': 2
+        },
+        {
+            'question': 'Which of the following is a cloud computing service?',
+            'option1': 'AWS',
+            'option2': 'Windows',
+            'option3': 'Photoshop',
+            'option4': 'Excel',
+            'correct_option': 1
+        },
+        {
+            'question': 'What is the main advantage of using React?',
+            'option1': 'Better database management',
+            'option2': 'Component-based UI development',
+            'option3': 'Server-side rendering only',
+            'option4': 'Better file compression',
+            'correct_option': 2
+        },
+        {
+            'question': 'Which protocol is used for secure web communication?',
+            'option1': 'HTTP',
+            'option2': 'FTP',
+            'option3': 'HTTPS',
+            'option4': 'SMTP',
+            'correct_option': 3
+        },
+        {
+            'question': 'What is the purpose of Docker?',
+            'option1': 'Version control',
+            'option2': 'Containerization of applications',
+            'option3': 'Database management',
+            'option4': 'Web hosting',
+            'correct_option': 2
         }
     ]
 
 # ---------- FETCH RANDOM 10 QUESTIONS ----------
 def fetch_random_questions():
     all_questions = get_sample_questions()
-    return random.sample(all_questions, min(10, len(all_questions)))
+    # Ensure we get exactly 10 questions, or fewer if not enough available
+    num_questions = min(10, len(all_questions))
+    return random.sample(all_questions, num_questions)
 
 # ---------- RUN QUIZ ----------
 def run_quiz(name):
@@ -170,16 +244,17 @@ def run_quiz(name):
 
         st.session_state.current_q += 1
 
-        if st.session_state.current_q >= 10:
+        if st.session_state.current_q >= len(st.session_state.questions):
             st.balloons()
-            percentage = (st.session_state.score / 10) * 100
+            total_questions = len(st.session_state.questions)
+            percentage = (st.session_state.score / total_questions) * 100
             
             if percentage >= 80:
-                st.success(f"🎉 Excellent, {name}! You scored {st.session_state.score}/10 ({percentage}%)!")
+                st.success(f"🎉 Excellent, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
             elif percentage >= 60:
-                st.success(f"👍 Good job, {name}! You scored {st.session_state.score}/10 ({percentage}%)!")
+                st.success(f"👍 Good job, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
             else:
-                st.info(f"📚 Keep studying, {name}! You scored {st.session_state.score}/10 ({percentage}%)!")
+                st.info(f"📚 Keep studying, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
 
             if st.session_state.incorrect_questions:
                 st.markdown("---")
@@ -197,6 +272,9 @@ def run_quiz(name):
                 st.session_state.questions = fetch_random_questions()
                 st.session_state.incorrect_questions = []
                 st.session_state.quiz_completed = False
+                # Force clear any cached quiz state
+                if 'answers' in st.session_state:
+                    st.session_state.answers = []
                 st.rerun()
         else:
             st.rerun()
@@ -244,9 +322,11 @@ def main():
             else:
                 st.warning("Please fill in all fields to start the quiz.")
     else:
-        progress = st.session_state.current_q / 10
+        # Get the total number of questions for display
+        total_questions = len(st.session_state.questions) if 'questions' in st.session_state else 10
+        progress = st.session_state.current_q / total_questions
         st.progress(progress)
-        st.markdown(f"**Current Score: {st.session_state.score}/10**")
+        st.markdown(f"**Current Score: {st.session_state.score}/{total_questions}**")
         run_quiz(st.session_state.username)
 
 if __name__ == "__main__":
