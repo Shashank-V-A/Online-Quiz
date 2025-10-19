@@ -141,6 +141,11 @@ def run_quiz(name):
         st.session_state.questions = fetch_random_questions()
         st.session_state.incorrect_questions = []
 
+    # Safety check to prevent index errors
+    if st.session_state.current_q >= len(st.session_state.questions):
+        st.session_state.current_q = 0
+        st.session_state.questions = fetch_random_questions()
+    
     st.markdown(f"### Question {st.session_state.current_q + 1}")
     q = st.session_state.questions[st.session_state.current_q]
     st.markdown(f"**{q['question']}**")
@@ -186,7 +191,12 @@ def run_quiz(name):
 
             st.markdown("---")
             if st.button("🔄 Take Another Quiz"):
-                st.session_state.clear()
+                # Reset only quiz-related variables, keep user registration
+                st.session_state.score = 0
+                st.session_state.current_q = 0
+                st.session_state.questions = fetch_random_questions()
+                st.session_state.incorrect_questions = []
+                st.session_state.quiz_completed = False
                 st.rerun()
         else:
             st.rerun()
