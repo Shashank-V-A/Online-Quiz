@@ -135,7 +135,7 @@ def fetch_random_questions():
 
 # ---------- RUN QUIZ ----------
 def run_quiz(name):
-    if 'score' not in st.session_state:
+    if 'questions' not in st.session_state:
         st.session_state.score = 0
         st.session_state.current_q = 0
         st.session_state.questions = fetch_random_questions()
@@ -204,6 +204,8 @@ def main():
         st.session_state.answers = []
     if 'quiz_completed' not in st.session_state:
         st.session_state.quiz_completed = False
+    if 'incorrect_questions' not in st.session_state:
+        st.session_state.incorrect_questions = []
 
     st.title("🧠 Quiz Master")
     st.markdown("Welcome to the *Online Quiz System*. Enter your details to begin!")
