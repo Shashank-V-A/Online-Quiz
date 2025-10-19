@@ -194,6 +194,16 @@ def run_quiz(name):
 # ---------- MAIN ----------
 def main():
     set_custom_css()
+    
+    # Initialize all session state variables
+    if 'score' not in st.session_state:
+        st.session_state.score = 0
+    if 'current_q' not in st.session_state:
+        st.session_state.current_q = 0
+    if 'answers' not in st.session_state:
+        st.session_state.answers = []
+    if 'quiz_completed' not in st.session_state:
+        st.session_state.quiz_completed = False
 
     st.title("🧠 Quiz Master")
     st.markdown("Welcome to the *Online Quiz System*. Enter your details to begin!")
@@ -222,7 +232,7 @@ def main():
             else:
                 st.warning("Please fill in all fields to start the quiz.")
     else:
-        progress = st.session_state.current_q / 10 if 'current_q' in st.session_state else 0
+        progress = st.session_state.current_q / 10
         st.progress(progress)
         st.markdown(f"**Current Score: {st.session_state.score}/10**")
         run_quiz(st.session_state.username)
