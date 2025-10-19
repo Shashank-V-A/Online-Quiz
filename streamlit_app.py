@@ -249,27 +249,35 @@ def run_quiz(name):
         st.session_state.current_q += 1
 
         if st.session_state.current_q >= len(st.session_state.questions):
-            st.balloons()
-            total_questions = len(st.session_state.questions)
-            percentage = (st.session_state.score / total_questions) * 100
-            
-            if percentage >= 80:
-                st.success(f"🎉 Excellent, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
-            elif percentage >= 60:
-                st.success(f"👍 Good job, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
-            else:
-                st.info(f"📚 Keep studying, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
+            st.session_state.quiz_completed = True
+        else:
+            st.rerun()
+    
+    # Show quiz completion screen
+    if st.session_state.current_q >= len(st.session_state.questions):
+        st.balloons()
+        total_questions = len(st.session_state.questions)
+        percentage = (st.session_state.score / total_questions) * 100
+        
+        if percentage >= 80:
+            st.success(f"🎉 Excellent, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
+        elif percentage >= 60:
+            st.success(f"👍 Good job, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
+        else:
+            st.info(f"📚 Keep studying, {name}! You scored {st.session_state.score}/{total_questions} ({percentage}%)!")
 
-            if st.session_state.incorrect_questions:
-                st.markdown("---")
-                st.markdown("### ❌ Review of Incorrect Questions")
-                for idx, item in enumerate(st.session_state.incorrect_questions, 1):
-                    st.markdown(f"**{idx}. {item['question']}**")
-                    st.markdown(f"- Your Answer: `{item['your_answer']}`")
-                    st.markdown(f"- Correct Answer: `{item['correct_answer']}`")
-
+        if st.session_state.incorrect_questions:
             st.markdown("---")
-            if st.button("🔄 Take Another Quiz"):
+            st.markdown("### ❌ Review of Incorrect Questions")
+            for idx, item in enumerate(st.session_state.incorrect_questions, 1):
+                st.markdown(f"**{idx}. {item['question']}**")
+                st.markdown(f"- Your Answer: `{item['your_answer']}`")
+                st.markdown(f"- Correct Answer: `{item['correct_answer']}`")
+
+        st.markdown("---")
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            if st.button("🔄 Take Another Quiz", key="retake_quiz"):
                 # Store user registration data temporarily
                 username = st.session_state.username
                 email = st.session_state.email
@@ -297,8 +305,6 @@ def run_quiz(name):
                 
                 # Force immediate rerun
                 st.rerun()
-        else:
-            st.rerun()
 
 # ---------- MAIN ----------
 def main():
@@ -349,8 +355,9 @@ def main():
         total_questions = len(st.session_state.questions) if 'questions' in st.session_state else 10
         progress = st.session_state.current_q / total_questions
         st.progress(progress)
-        # Display current score
-        st.markdown(f"**Current Score: {st.session_state.score}/{total_questions}**")
+        # Display current score - show score out of current questions answered
+        questions_answered = st.session_state.current_q
+        st.markdown(f"**Current Score: {st.session_state.score}/{questions_answered if questions_answered > 0 else 0}**")
         run_quiz(st.session_state.username)
 
 if __name__ == "__main__":
