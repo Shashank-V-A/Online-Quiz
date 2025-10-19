@@ -266,15 +266,29 @@ def run_quiz(name):
 
             st.markdown("---")
             if st.button("🔄 Take Another Quiz"):
-                # Reset only quiz-related variables, keep user registration
+                # Store user registration data temporarily
+                username = st.session_state.username
+                email = st.session_state.email
+                phone = st.session_state.phone
+                
+                # Clear all session state
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                
+                # Restore user registration data
+                st.session_state.username = username
+                st.session_state.email = email
+                st.session_state.phone = phone
+                
+                # Initialize fresh quiz state
                 st.session_state.score = 0
                 st.session_state.current_q = 0
                 st.session_state.questions = fetch_random_questions()
                 st.session_state.incorrect_questions = []
                 st.session_state.quiz_completed = False
-                # Force clear any cached quiz state
-                if 'answers' in st.session_state:
-                    st.session_state.answers = []
+                st.session_state.answers = []
+                
+                # Force immediate rerun
                 st.rerun()
         else:
             st.rerun()
@@ -294,6 +308,8 @@ def main():
         st.session_state.quiz_completed = False
     if 'incorrect_questions' not in st.session_state:
         st.session_state.incorrect_questions = []
+    if 'quiz_session_id' not in st.session_state:
+        st.session_state.quiz_session_id = random.randint(1000, 9999)
 
     st.title("🧠 Quiz Master")
     st.markdown("Welcome to the *Online Quiz System*. Enter your details to begin!")
@@ -326,6 +342,7 @@ def main():
         total_questions = len(st.session_state.questions) if 'questions' in st.session_state else 10
         progress = st.session_state.current_q / total_questions
         st.progress(progress)
+        # Display current score
         st.markdown(f"**Current Score: {st.session_state.score}/{total_questions}**")
         run_quiz(st.session_state.username)
 
