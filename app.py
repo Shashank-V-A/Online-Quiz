@@ -209,11 +209,15 @@ def fetch_random_questions():
 
 # ---------- RUN QUIZ ----------
 def run_quiz(name):
-    if 'questions' not in st.session_state:
+    # Always ensure score starts at 0 for new quiz sessions
+    if 'questions' not in st.session_state or 'quiz_restarted' in st.session_state:
         st.session_state.score = 0
         st.session_state.current_q = 0
         st.session_state.questions = fetch_random_questions()
         st.session_state.incorrect_questions = []
+        # Clear the restart flag
+        if 'quiz_restarted' in st.session_state:
+            del st.session_state.quiz_restarted
 
     # Safety check to prevent index errors
     if st.session_state.current_q >= len(st.session_state.questions):
@@ -279,6 +283,9 @@ def run_quiz(name):
                 st.session_state.username = username
                 st.session_state.email = email
                 st.session_state.phone = phone
+                
+                # Set restart flag to ensure proper score reset
+                st.session_state.quiz_restarted = True
                 
                 # Initialize fresh quiz state
                 st.session_state.score = 0
